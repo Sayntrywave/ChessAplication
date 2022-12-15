@@ -16,11 +16,12 @@ public class Bishop extends Figure {
 
     public Bishop(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
-        PieceType = PieceType.BISHOPS;
+        pieceType = PieceType.BISHOPS;
     }
 
     public Bishop(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
+        pieceType = PieceType.BISHOPS;
     }
 
     @Override

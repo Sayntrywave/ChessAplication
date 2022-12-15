@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.stage.*?>
 
@@ -9,12 +10,7 @@
         <Scene>
             <AnchorPane prefHeight="200" prefWidth="200">
             <children>
-               <StackPane prefHeight="48.0" prefWidth="34.0" />
-               <StackPane layoutX="-46.0" layoutY="-27.0" prefHeight="150.0" prefWidth="200.0">
-                  <children>
-                     <StackPane prefHeight="88.0" prefWidth="107.0" />
-                  </children>
-               </StackPane>
+
             </children></AnchorPane>
         </Scene>
     </scene>

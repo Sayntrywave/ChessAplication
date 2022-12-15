@@ -77,7 +77,11 @@ public abstract class Figure {
     public Coord getCoord() {
         return coord;
     }
-/*
+
+    public PieceType getPieceType() {
+        return pieceType;
+    }
+    /*
     protected void setCoord(int x, int y) throws Exception {
         if (x < 0 || y < 0  || y >= gameField.length || x>= gameField[0].length ){
             throw new Exception("Переместить фигуру на координаты x: " + x + " y:" + y + "не удалось");

@@ -1,5 +1,7 @@
 package ru.vsu.korotkov.chess.figures;
 
+import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+
 public class Knight extends Figure {
   /*  public Knight(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
@@ -11,10 +13,12 @@ public class Knight extends Figure {
 
     public Knight(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
+        pieceType = PieceType.KNIGHT;
     }
 
     public Knight(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
+        pieceType = PieceType.KNIGHT;
     }
     /*
     @Override

@@ -6,13 +6,15 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import ru.vsu.korotkov.chess.Game;
 import ru.vsu.korotkov.chess.UserInteraction;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
+import ru.vsu.korotkov.chess.userInteractions.CLI;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application implements UserInteraction {
+public class ChessApp extends Application implements UserInteraction {
 
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
@@ -54,6 +56,31 @@ public class HelloApplication extends Application implements UserInteraction {
 
     private Parent createContent() {
         root.setPrefSize(WIDTH*TILE_SIZE,HEIGHT*TILE_SIZE);
+        root.getChildren().addAll(tileGroup,pieceGroup);
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                Tile tile = new Tile((x + y) % 2 == 0, x, y);
+                board[x][y] = tile;
+
+                tileGroup.getChildren().add(tile);
+
+//                Piece piece = null;
+
+/*                if (y <= 2 && (x + y) % 2 != 0) {
+                    piece = makePiece(PieceType.RED, x, y);
+                }*/
+
+/*                if (y >= 5 && (x + y) % 2 != 0) {
+                    piece = makePiece(PieceType.WHITE, x, y);
+                }
+
+                if (piece != null) {
+                    tile.setPiece(piece);
+                    pieceGroup.getChildren().add(piece);
+
+ */
+                }
+            }
         return root;
     }
 
@@ -64,5 +91,8 @@ public class HelloApplication extends Application implements UserInteraction {
         stage.setTitle("Hello!");
         stage.setScene(scene);
         stage.show();
+/*        Game chess = new Game();
+        chess.start(this);*/
     }
+
 }

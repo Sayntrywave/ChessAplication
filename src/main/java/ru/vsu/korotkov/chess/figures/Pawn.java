@@ -1,5 +1,7 @@
 package ru.vsu.korotkov.chess.figures;
 
+import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+
 public class Pawn extends Figure {
 
 //    private boolean isWhite =false;
@@ -17,10 +19,12 @@ public class Pawn extends Figure {
 
     public Pawn(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
+        pieceType = PieceType.PAWN;
     }
 
     public Pawn(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
+        pieceType = PieceType.PAWN;
     }
     /*  @Override
     public boolean move(int x, int y) {

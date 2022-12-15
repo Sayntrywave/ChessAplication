@@ -1,5 +1,7 @@
 package ru.vsu.korotkov.chess.figures;
 
+import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+
 public class Queen extends Figure {
 
 
@@ -13,10 +15,12 @@ public class Queen extends Figure {
 
     public Queen(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
+        pieceType = PieceType.QUEEN;
     }
 
     public Queen(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
+        pieceType = PieceType.QUEEN;
     }
     /*   @Override
     public boolean move(int x, int y) {
