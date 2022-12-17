@@ -1,6 +1,6 @@
 package ru.vsu.korotkov.chess.players;
 
-import ru.vsu.korotkov.chess.MoveType;
+import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 import ru.vsu.korotkov.chess.figures.King;

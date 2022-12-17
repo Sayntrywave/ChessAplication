@@ -1,4 +1,4 @@
-package ru.vsu.korotkov.chess.userInteractions.UI;
+package ru.vsu.korotkov.chess.fx;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;

@@ -1,6 +1,6 @@
 package ru.vsu.korotkov.chess.figures;
 
-import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+import ru.vsu.korotkov.chess.enums.PieceType;
 
 public class Pawn extends Figure {
 
@@ -19,12 +19,18 @@ public class Pawn extends Figure {
 
     public Pawn(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
-        pieceType = PieceType.PAWN;
+        if (isWhite){
+            pieceType = PieceType.WKNIGHT;
+        }
+        else pieceType = PieceType.BKNIGHT;
     }
 
     public Pawn(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
-        pieceType = PieceType.PAWN;
+        if (isWhite){
+            pieceType = PieceType.WPAWN;
+        }
+        else pieceType = PieceType.BPAWN;
     }
     /*  @Override
     public boolean move(int x, int y) {
@@ -37,7 +43,7 @@ public class Pawn extends Figure {
             if( y - coord.y ==1 && Math.abs(x - coord.x) == 1 && gameField[y][x] != null){
                 return true;
             }
-            if (y - coord.y == 2){
+            if (y - coord.y == 2 && x == coord.x){
                 if (y - 1 < 0){
                     return false;
                 }
@@ -55,7 +61,7 @@ public class Pawn extends Figure {
             if( coord.y - y ==1 && Math.abs(x - coord.x) == 1 && gameField[y][x] != null){
                 return true;
             }
-            if ( coord.y - y == 2){
+            if ( coord.y - y == 2 && x == coord.x){
                 if (y - 1 < 0){
                     return false;
                 }

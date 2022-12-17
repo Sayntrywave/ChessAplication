@@ -1,5 +1,8 @@
-package ru.vsu.korotkov.chess;
+package ru.vsu.korotkov.chess.model;
 
+import ru.vsu.korotkov.chess.enums.MoveType;
+import ru.vsu.korotkov.chess.events.GameOverListener;
+import ru.vsu.korotkov.chess.events.RoundEventListeners;
 import ru.vsu.korotkov.chess.figures.*;
 import ru.vsu.korotkov.chess.players.Human;
 import ru.vsu.korotkov.chess.players.Player;
@@ -9,69 +12,74 @@ import java.util.List;
 
 
 public class Game {
+    private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
+    private final List<GameOverListener> gameOverListeners = new ArrayList<>();
     private final int FieldSize = 8;
     private Figure[][] gameField;
-    private List<Player> players;
-    private boolean isGameOver = false;
-    int numberOfMoves;
+    private final List<Player> players;
+    private boolean isOver = false;
+    private int numberOfMoves = 0;
 
-
-    public void start(UserInteraction userInteraction) {
+    public Game() {//add enum
         createGameField();
-        userInteraction.setGameField(gameField);
-        userInteraction.updateGameField();
         players = new ArrayList<>();
-
-
-        Player firstPlayer = new Human(true, gameField);
-        Player secondPlayer = new Human(false, gameField);
-
-        players.add(firstPlayer);
-        players.add(secondPlayer);
-
-        int numberOfMoves = 0;
-
-        while (!isGameOver) { // это переделать
-            switch (players.get(numberOfMoves % 2).moveFigure(userInteraction.getMove())) {//сделать отдельный метод для этого. т.е если поступает лиссенер, то тогда и думать, возможно это или нет
-                //piece can't change gameField, only game can \
-                // add cases: kill and normal
-                case NONE -> {
-                    System.out.println("Impossible move! Try again");//добавить метод, который скажет пользователю
-                    continue;
-                }
-                case NORMAL -> {
-                    numberOfMoves++;
-                    userInteraction.updateGameField();
-                }
-                case GAMEOVER -> {
-                    isGameOver = true;
-                    break;
-                }
-            }
-
-        }
-
-        userInteraction.printWinner(numberOfMoves);
+        players.add(new Human(true,gameField));
+        players.add(new Human(false,gameField));
     }
 
-    public MoveType makeMove(Coord from, Coord to){
-        switch (players.get(numberOfMoves % 2).moveFigure(new Coord[]{from,to})){
+    public void setPlayer(Player player) {
+        players.add(player);
+    }
+
+    public boolean isOver() {
+        return isOver;
+    }
+
+    private void setGameOver() {
+        isOver = true;
+        gameOverListeners.forEach(l -> l.onGameOver());
+    }
+
+    public int getNumberOfMoves() {
+        return numberOfMoves;
+    }
+
+    public void  addRoundEventListeners(RoundEventListeners listener){
+        roundEventListeners.add(listener);
+    }
+    public void  addGameOverListeners(GameOverListener listener){
+        gameOverListeners.add(listener);
+    }
+
+    public Figure[][] getGameField() {
+        return gameField;
+    }
+
+    public MoveType makeMove(Coord[] coords){
+        MoveType moveType;
+        switch (players.get(numberOfMoves % 2).moveFigure(coords)){
             //piece can't change gameField, only game can \
             // add cases: kill and normal
             case NORMAL -> {
                 numberOfMoves++;
-                return MoveType.NORMAL;
+                moveType = MoveType.NORMAL;
             }
             case KILL -> {
-                return MoveType.KILL;
+                numberOfMoves++;
+                moveType = MoveType.KILL;
             }
             case GAMEOVER -> {
-                return MoveType.GAMEOVER;
+                isOver = true;
+                moveType = MoveType.GAMEOVER;
+                setGameOver();
             }
             default -> {
-                return MoveType.NONE;
+                moveType = MoveType.NONE;
             }
         }
+        roundEventListeners.forEach(l -> l.onRoundFinished(moveType));
+        //добавить лиссенеров
+        return moveType;
     }
 
     private void createGameField() {

@@ -1,6 +1,6 @@
 package ru.vsu.korotkov.chess.figures;
 
-import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+import ru.vsu.korotkov.chess.enums.PieceType;
 
 public abstract class Figure {
 

@@ -1,6 +1,6 @@
 package ru.vsu.korotkov.chess.figures;
 
-import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+import ru.vsu.korotkov.chess.enums.PieceType;
 
 public class Bishop extends Figure {
 
@@ -16,12 +16,18 @@ public class Bishop extends Figure {
 
     public Bishop(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
-        pieceType = PieceType.BISHOPS;
+        if (isWhite){
+            pieceType = PieceType.WKNIGHT;
+        }
+        else pieceType = PieceType.BKNIGHT;
     }
 
     public Bishop(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
-        pieceType = PieceType.BISHOPS;
+        if (isWhite){
+            pieceType = PieceType.WBISHOPS;
+        }
+        else pieceType = PieceType.BBISHOPS;
     }
 
     @Override

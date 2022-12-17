@@ -1,15 +1,13 @@
 package ru.vsu.korotkov.chess;
 
-import ru.vsu.korotkov.chess.userInteractions.CLI;
-import ru.vsu.korotkov.chess.userInteractions.UI.ChessApp;
-import ru.vsu.korotkov.chess.userInteractions.UI.GUI;
+import ru.vsu.korotkov.chess.console.ConsoleGame;
+import ru.vsu.korotkov.chess.model.Game;
 
 public class Main {
     public static void main(String[] args) {
         Game chess = new Game();
-//        UserInteraction userInteraction = new CLI();
-        UserInteraction userInteraction = new GUI(new ChessApp());
-        chess.start(userInteraction);
+        ConsoleGame consoleGame = new ConsoleGame(chess);
+        consoleGame.start();
     }
 
 }

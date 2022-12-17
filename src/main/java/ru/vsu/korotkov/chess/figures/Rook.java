@@ -1,6 +1,6 @@
 package ru.vsu.korotkov.chess.figures;
 
-import ru.vsu.korotkov.chess.userInteractions.UI.PieceType;
+import ru.vsu.korotkov.chess.enums.PieceType;
 
 public class Rook extends Figure {
 
@@ -18,12 +18,18 @@ public class Rook extends Figure {
 
     public Rook(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
-        pieceType = PieceType.ROOK;
+        if (isWhite){
+            pieceType = PieceType.WKNIGHT;
+        }
+        else pieceType = PieceType.BKNIGHT;
     }
 
     public Rook(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
-        pieceType = PieceType.ROOK;
+        if (isWhite){
+            pieceType = PieceType.WROOK;
+        }
+        else pieceType = PieceType.BROOK;
     }
 
     @Override
