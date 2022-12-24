@@ -6,29 +6,31 @@ import ru.vsu.korotkov.chess.events.RoundEventListeners;
 import ru.vsu.korotkov.chess.figures.*;
 import ru.vsu.korotkov.chess.players.Human;
 import ru.vsu.korotkov.chess.players.Player;
+import ru.vsu.korotkov.chess.players.PlayerType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class Game {
+public abstract class Game implements RoundEventListeners{
     private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
     private final List<GameOverListener> gameOverListeners = new ArrayList<>();
-    private final int FieldSize = 8;
     private Figure[][] gameField;
-    private final List<Player> players;
+    protected final List<Player> players;
     private boolean isOver = false;
     private int numberOfMoves = 0;
 
-    public Game() {//add enum
+    public Game(PlayerType player) {
         createGameField();
         players = new ArrayList<>();
-        players.add(new Human(true,gameField));
-        players.add(new Human(false,gameField));
+        setPlayer(player,true);
+        roundEventListeners.add(this);
     }
 
-    public void setPlayer(Player player) {
-        players.add(player);
+    public void setPlayer(PlayerType player, boolean isWhite) {
+        if (player.equals(PlayerType.HUMAN)){
+            players.add(new Human(isWhite,gameField));
+        }
     }
 
     public boolean isOver() {
@@ -37,7 +39,7 @@ public class Game {
 
     private void setGameOver() {
         isOver = true;
-        gameOverListeners.forEach(l -> l.onGameOver());
+        gameOverListeners.forEach(GameOverListener::onGameOver);
     }
 
     public int getNumberOfMoves() {
@@ -58,8 +60,6 @@ public class Game {
     public MoveType makeMove(Coord[] coords){
         MoveType moveType;
         switch (players.get(numberOfMoves % 2).moveFigure(coords)){
-            //piece can't change gameField, only game can \
-            // add cases: kill and normal
             case NORMAL -> {
                 numberOfMoves++;
                 moveType = MoveType.NORMAL;
@@ -77,14 +77,26 @@ public class Game {
                 moveType = MoveType.NONE;
             }
         }
-        roundEventListeners.forEach(l -> l.onRoundFinished(moveType));
-        //добавить лиссенеров
+        if (moveType != MoveType.NONE){
+            roundEventListeners.forEach(l -> l.onRoundFinished(moveType,coords));
+
+        }
         return moveType;
     }
 
-    private void createGameField() {
-        gameField = new Figure[FieldSize][FieldSize];
+    @Override
+    public abstract void onRoundFinished(MoveType moveType, Coord[] coords);
 
+/*    public MoveType round(Coord[] coord){
+        MoveType moveType = doOnEndRound(coord);
+        return moveType;
+    }*/
+
+
+    private void createGameField() {
+        int fieldSize = 8;
+
+        gameField = new Figure[fieldSize][fieldSize];
 
         gameField[0][4] = new King(true, gameField, new Coord(4, 0));
 
@@ -103,19 +115,17 @@ public class Game {
 
         gameField[0][2] = new Bishop(true, gameField, new Coord(2, 0));
         gameField[0][5] = new Bishop(true, gameField, new Coord(5, 0));
-//        gameField[2][3] = new Bishop(true,gameField,new Coord(3,2);
         gameField[7][2] = new Bishop(false, gameField, new Coord(2, 7));
         gameField[7][5] = new Bishop(false, gameField, new Coord(5, 7));
 
         gameField[0][3] = new Queen(true, gameField, new Coord(3, 0));
-//        gameField[1][3] = new Queen(true,gameField,new Coord(3,1);
         gameField[7][3] = new Queen(false, gameField, new Coord(3, 7));
 
 
-        for (int j = 0; j < FieldSize; j++) {
+        for (int j = 0; j < fieldSize; j++) {
             gameField[1][j] = new Pawn(true, gameField, new Coord(j, 1));
         }
-        for (int j = 0; j < FieldSize; j++) {
+        for (int j = 0; j < fieldSize; j++) {
             gameField[6][j] = new Pawn(false, gameField, new Coord(j, 6));
         }
 

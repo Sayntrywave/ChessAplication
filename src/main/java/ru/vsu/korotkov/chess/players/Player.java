@@ -53,31 +53,30 @@ public abstract class Player {
             return MoveType.NONE;
         }
 
+        int x = coordinates[0].getX();
+        int y = coordinates[0].getY();
 
-        if (coordinates[0].getX() < 0 || coordinates[0].getY() < 0 || coordinates[0].getY() >= gameField.length || coordinates[0].getX() >= gameField[0].length) {
-            System.out.println("Переместить фигуру на координаты x: " + coordinates[0].getX() + " y:" + coordinates[0].getY() + "не удалось");
+
+        if ( x < 0 || y < 0 || y >= gameField.length || x >= gameField[0].length) {
+            System.out.println("Переместить фигуру на координаты x: " + x + " y:" + y + "не удалось");
             return MoveType.NONE;
         }
 
-        Figure figure = gameField[coordinates[0].getY()][coordinates[0].getX()];
+        Figure figure = gameField[y][x];
 
         if (figure == null || figure.isWhite == !this.isWhite) {
             return MoveType.NONE;
         }
 
 
-
-        return moveFigure(figure, coordinates[1].getX(), coordinates[1].getY()) ? MoveType.NORMAL : MoveType.NONE;
+        int toX = coordinates[1].getX();
+        int toY = coordinates[1].getY();
+        return moveFigure(figure, toX, toY) ? /*((gameField[toY][toX] == null) ? MoveType.NORMAL : MoveType.KILL) */ MoveType.NORMAL : MoveType.NONE;
     }
 
 
 
     private boolean moveFigure(Figure figure, int x, int y) {
-/*        if( !((isWhite && !gameField[x][y].isWhite || (!isWhite && gameField[x][y].isWhite  ) ) )){
-            return false;
-            *//*gameField[y][x] = figure;
-            gameField[figure.getCoord().getY()][figure.getCoord().getX()] = null;*//*
-        }*/
         return figure.moveTo(x, y);
     }
 }
