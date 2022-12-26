@@ -4,15 +4,19 @@ import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.events.GameOverListener;
 import ru.vsu.korotkov.chess.events.RoundEventListeners;
 import ru.vsu.korotkov.chess.figures.*;
+import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.players.Human;
 import ru.vsu.korotkov.chess.players.Player;
 import ru.vsu.korotkov.chess.players.PlayerType;
+import ru.vsu.korotkov.chess.remote.ServerSideController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class Game implements RoundEventListeners{
+public class Game {
+
+    private final ServerSideController serverSideController;
     private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
     private final List<GameOverListener> gameOverListeners = new ArrayList<>();
     private Figure[][] gameField;
@@ -20,16 +24,22 @@ public abstract class Game implements RoundEventListeners{
     private boolean isOver = false;
     private int numberOfMoves = 0;
 
-    public Game(PlayerType player) {
-        createGameField();
-        players = new ArrayList<>();
-        setPlayer(player,true);
-        roundEventListeners.add(this);
+    public Game(PlayerType player1, PlayerType player2) {
+        this(player1,player2,null);
     }
 
-    public void setPlayer(PlayerType player, boolean isWhite) {
+    public Game(PlayerType player1,PlayerType player2, ServerSideController serverSideController) {
+        this.serverSideController = serverSideController;
+        createGameField();
+        players = new ArrayList<>();
+        setPlayer(player1,true, serverSideController);
+        setPlayer(player2,false, serverSideController);
+//        roundEventListeners.add(this);
+    }
+
+    public void setPlayer(PlayerType player, boolean isWhite, ServerSideController serverSideController) {
         if (player.equals(PlayerType.HUMAN)){
-            players.add(new Human(isWhite,gameField));
+            players.add(new Human(isWhite,gameField,serverSideController));
         }
     }
 
@@ -57,9 +67,18 @@ public abstract class Game implements RoundEventListeners{
         return gameField;
     }
 
-    public MoveType makeMove(Coord[] coords){
+    public boolean getTurn(){
+        //Если игрок ходит белыми, то метод возвращает true
+        return numberOfMoves % 2 == 1;
+    }
+
+    public MoveType makeMove(){
+        //todo какой плейер пошел
+        int turn = numberOfMoves % 2;
+        Coord[] move = players.get(turn).move();
+        //todo проверить правильность хода
         MoveType moveType;
-        switch (players.get(numberOfMoves % 2).moveFigure(coords)){
+        switch (players.get(numberOfMoves % 2).moveFigure(move)){
             case NORMAL -> {
                 numberOfMoves++;
                 moveType = MoveType.NORMAL;
@@ -77,15 +96,17 @@ public abstract class Game implements RoundEventListeners{
                 moveType = MoveType.NONE;
             }
         }
-        if (moveType != MoveType.NONE){
-            roundEventListeners.forEach(l -> l.onRoundFinished(moveType,coords));
-
-        }
+        players.get(turn).updateClient(new MoveResult(moveType, move[0],move[1]));
+        System.out.println();
+//            roundEventListeners.forEach(l -> l.onRoundFinished(moveType,coords));
         return moveType;
     }
 
-    @Override
-    public abstract void onRoundFinished(MoveType moveType, Coord[] coords);
+    public void start(){
+        while (!isOver){
+            makeMove();
+        }
+    }
 
 /*    public MoveType round(Coord[] coord){
         MoveType moveType = doOnEndRound(coord);

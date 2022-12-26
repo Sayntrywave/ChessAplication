@@ -96,6 +96,7 @@ public abstract class Figure {
             Figure figure = gameField[y][x];
             gameField[y][x] = gameField[this.getCoord().getY()][this.getCoord().getX()];
             gameField[this.getCoord().getY()][this.getCoord().getX()] = null;
+            // king mustn't moved
             if(king.isChecked()){
                 gameField[this.getCoord().getY()][this.getCoord().getX()] = gameField[y][x];
                 gameField[y][x] = figure;

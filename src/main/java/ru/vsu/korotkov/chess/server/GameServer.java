@@ -1,7 +1,6 @@
 package ru.vsu.korotkov.chess.server;
 
 import ru.vsu.korotkov.chess.model.Game;
-import ru.vsu.korotkov.chess.model.LocalGame;
 import ru.vsu.korotkov.chess.players.PlayerType;
 
 import java.io.BufferedReader;
@@ -32,7 +31,7 @@ public class GameServer {
         Socket socket = serverSocket.accept();
         System.out.printf("Client connected from: %s%n", socket.getInetAddress());
 
-        game = new LocalGame(PlayerType.HUMAN,PlayerType.HUMAN);
+//        game = new LocalGame(PlayerType.HUMAN,PlayerType.HUMAN);
 
         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(),true);

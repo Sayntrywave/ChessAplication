@@ -4,16 +4,20 @@ import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 import ru.vsu.korotkov.chess.figures.King;
+import ru.vsu.korotkov.chess.move.MoveResult;
+import ru.vsu.korotkov.chess.remote.ServerSideController;
 
 public abstract class Player {
+    private ServerSideController serverSideController;
     public final boolean isWhite;
     private Figure[][] gameField;
     private final King friendlyKing;
 //    private final King enemyKing;
 
-    public Player(boolean isWhite, Figure[][] gameField) {
+    public Player(boolean isWhite, Figure[][] gameField, ServerSideController serverSideController) {
         this.isWhite = isWhite;
         this.gameField = gameField;
+        this.serverSideController = serverSideController;
 
         friendlyKing = (isWhite) ? (King) gameField[0][4]: (King) gameField[7][4];
 //        enemyKing = (!isWhite) ?  (King) gameField[7][4]: (King) gameField[0][3];
@@ -72,6 +76,14 @@ public abstract class Player {
         int toX = coordinates[1].getX();
         int toY = coordinates[1].getY();
         return moveFigure(figure, toX, toY) ? /*((gameField[toY][toX] == null) ? MoveType.NORMAL : MoveType.KILL) */ MoveType.NORMAL : MoveType.NONE;
+    }
+
+    public Coord[] move(){
+        return serverSideController.askClient();
+    }
+
+    public void updateClient(MoveResult result){
+        serverSideController.notifyUpdate(result);
     }
 
 

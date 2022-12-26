@@ -1,32 +1,30 @@
 package ru.vsu.korotkov.chess.fx;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import ru.vsu.korotkov.chess.enums.MoveType;
-import ru.vsu.korotkov.chess.events.RoundEventListeners;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 import ru.vsu.korotkov.chess.model.Game;
-import ru.vsu.korotkov.chess.model.LocalGame;
-import ru.vsu.korotkov.chess.model.NetworkGame;
+import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.players.PlayerType;
+import ru.vsu.korotkov.chess.remote.*;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Collections;
+
 //todo подумать над названием
-public class GameController {
+public class GameController implements IGameController {
+
+    ClientSideController controller;
 
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
-
-    Game game;
 
     private Tile[][] board = new Tile[WIDTH][HEIGHT];
 
@@ -45,15 +43,11 @@ public class GameController {
 //        createContent(new Game());
     }
 
-    private void setGame(Game game){
-        this.game = game;
-        gameField = game.getGameField();
-
-        game.addGameOverListeners(Platform::exit);
-    }
-    private void createContent(Game game) throws IOException {
-        setGame(game);
-
+    private void createContent() throws IOException {
+        gameField = controller.getField();
+        for (int i = 0; i < gameField.length; i++) {
+            System.out.println(Arrays.toString(gameField[i]));
+        }
         root.setPrefSize(WIDTH*TILE_SIZE,HEIGHT*TILE_SIZE);
         root.getScene().getWindow().setHeight(WIDTH*TILE_SIZE + 74);
         root.getScene().getWindow().setWidth(WIDTH*TILE_SIZE);
@@ -63,7 +57,7 @@ public class GameController {
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 Tile tile = new Tile((x + y) % 2 == 0, x, y);
-                board[x][y] = tile;
+                board[y][x] = tile;
 
                 tileGroup.getChildren().add(tile);
                 Figure figure =gameField[y][x];
@@ -74,7 +68,33 @@ public class GameController {
                 }
             }
         }
+        System.out.println();
 //        changeScene();
+    }
+    @Override
+    public void movePiece(MoveResult move){
+        int x0 = move.coord1().getX();
+        int y0 = move.coord1().getY();
+        int newX = move.coord2().getX();
+        int newY = move.coord2().getY();
+        Piece piece = board[y0][x0].getPiece();
+
+        switch (move.moveType()) {
+            case NONE -> piece.abortMove();
+            case NORMAL -> {
+                piece.move(newX, newY);
+                board[x0][y0].setPiece(null);
+                board[newX][newY].setPiece(piece);
+            }
+            case KILL -> {
+                piece.move(newX, newY);
+                board[x0][y0].setPiece(null);
+                board[newX][newY].setPiece(piece);
+                Piece otherPiece = board[newX][newY].getPiece();
+                board[otherPiece.getX()][otherPiece.getY()].setPiece(null);
+                pieceGroup.getChildren().remove(otherPiece);
+            }
+        }
     }
 
     private void changeScene() throws IOException {
@@ -88,46 +108,27 @@ public class GameController {
     private Piece makePiece(Figure figure){
         Piece piece = new Piece(figure.getPieceType(),figure.getCoord());
         piece.setOnMouseReleased(e -> {
+
             int newX = toBoard(piece.getLayoutX());
             int newY = toBoard(piece.getLayoutY());
-
-            MoveType result;
-
             if (newX < 0 || newY < 0 || newX >= WIDTH || newY >= HEIGHT) {
-                result = MoveType.NONE;
-            } else {
-                result = game.makeMove(new Coord[]{piece.getCoord(), new Coord(newX, newY)});
+                return;
             }
-
-            int x0 = piece.getX();
-            int y0 = piece.getY();
-
-            switch (result) {
-                case NONE -> piece.abortMove();
-                case NORMAL -> {
-                    piece.move(newX, newY);
-                    board[x0][y0].setPiece(null);
-                    board[newX][newY].setPiece(piece);
-                }
-                case KILL -> {
-                    piece.move(newX, newY);
-                    board[x0][y0].setPiece(null);
-                    board[newX][newY].setPiece(piece);
-                    Piece otherPiece = board[newX][newY].getPiece();
-                    board[otherPiece.getX()][otherPiece.getY()].setPiece(null);
-                    pieceGroup.getChildren().remove(otherPiece);
-                }
-            }
+            controller.notifyClick(new Coord[]{
+                    new Coord(piece.getX(), piece.getY()),
+                    new Coord(newX,newY)
+            });
         });
         return piece;
     }
     @FXML
     protected void onLocalGameButtonPressed() throws IOException {
-
-        createContent(new LocalGame(PlayerType.HUMAN,PlayerType.HUMAN));
+        controller = new OfflineController(this);
+        createContent();
     }
     @FXML
     protected void onRemoteGameButtonPressed() throws IOException {
-        createContent(new NetworkGame(PlayerType.HUMAN,"localhost",9999));
+//        controller = new OnlineController(this); // надо сделать еще один интерфейс для игрового контроллера
+        createContent();
     }
 }

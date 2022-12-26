@@ -5,12 +5,8 @@ import ru.vsu.korotkov.chess.model.Game;
 
 public class Main {
     public static void main(String[] args) {
-/*        Game chess = new Game();
-        ConsoleGame consoleGame = new ConsoleGame(chess);
-        consoleGame.start();*/
-        while (true){
-
-        }
+        ConsoleGame consoleGame = new ConsoleGame();
+        consoleGame.start();
     }
 
 }
