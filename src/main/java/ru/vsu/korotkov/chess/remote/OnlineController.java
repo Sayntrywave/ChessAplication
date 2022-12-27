@@ -2,22 +2,23 @@ package ru.vsu.korotkov.chess.remote;
 
 import javafx.application.Platform;
 import ru.vsu.korotkov.chess.console.GameCommand;
+import ru.vsu.korotkov.chess.enums.MoveType;
+import ru.vsu.korotkov.chess.figures.Bishop;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
-import ru.vsu.korotkov.chess.listeners.ClientFieldListener;
-import ru.vsu.korotkov.chess.listeners.ClientMoveListener;
-import ru.vsu.korotkov.chess.listeners.GameMoveListener;
+import ru.vsu.korotkov.chess.figures.King;
 import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.server.ChessParser;
+import simplejson.ArrObj;
+import simplejson.MapObj;
+import simplejson.Obj;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class OnlineController extends AbstractController {
 
@@ -28,16 +29,16 @@ public class OnlineController extends AbstractController {
     private GameCommand currCommand;
 
 
-
     public OnlineController(Socket socket) throws IOException {
         this.socket = socket;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(),true);
+        out = new PrintWriter(socket.getOutputStream(), true);
 
         new Thread(this::run).start();
     }
+
     public OnlineController(int port) throws IOException {
-        this(new Socket("localhost",port));
+        this(new Socket("localhost", port));
     }
 
     @Override
@@ -46,66 +47,114 @@ public class OnlineController extends AbstractController {
     }
 
 
-
-
     @Override
     public void notifyClick(Coord[] coord) {
         //todo print command coord
-        send(GameCommand.GCOORD,Arrays.toString(coord));
+        Obj obj = new MapObj();
+        Obj from = new MapObj();
+        Obj to = new MapObj();
+        from.put("x","" + coord[0].getX());
+        from.put("y","" + coord[0].getY());
+        to.put("x","" + coord[1].getX());
+        to.put("y","" + coord[1].getY());
+        obj.put("from",from);
+        obj.put("to",to);
+        send(GameCommand.GCOORD, obj.toString());
     }
-
 
 
     @Override
     public void notifyUpdate(MoveResult move) {
-        send(GameCommand.GMOVERESULT,move.toString());
+        Obj obj = new MapObj();
+        Obj from = new MapObj();
+        Obj to = new MapObj();
+
+        from.put("x","" + move.coord1().getX());
+        from.put("y","" + move.coord1().getY());
+        to.put("x","" + move.coord2().getX());
+        to.put("y","" + move.coord2().getY());
+
+        obj.put("movetype",move.moveType().toString());
+        obj.put("from",from);
+        obj.put("to",to);
+        send(GameCommand.GMOVERESULT, obj.toString());
     }
 
     @Override
     public void sendGameField(Figure[][] figures) {
-        StringBuilder message = new StringBuilder();
-        for (Figure[] figure : figures) {
-            message.append(Arrays.toString(figure)).append("\n");
+        Obj res = new MapObj();
+//        res.put("command",GameCommand.FIELD.toString());
+        Obj arrObj = new ArrObj();
+        for (int i = 0; i < figures.length; i++) {
+            for (int j = 0; j < figures[0].length; j++) {
+                Figure figure = figures[i][j];
+                if (figure == null)
+                    continue;
+                Obj figureObj = new MapObj();
+                figureObj.put("x", String.valueOf(figure.getCoord().getX()));
+                figureObj.put("y", String.valueOf(figure.getCoord().getY()));
+                figureObj.put("name", figure.toString());
+
+                arrObj.append(figureObj);
+            }
         }
-        send(GameCommand.FIELD,message.toString());
+        res.put("field",arrObj);
+        send(GameCommand.FIELD,arrObj.toString());
     }
 
-    private void send(GameCommand gameCommand, String message){
+    private void send(GameCommand gameCommand, String message) {
         System.out.println("я отправил" + gameCommand.toString());
-        out.println(gameCommand + ":");
-        out.println(message);
+        out.println(gameCommand + "|" + message);
     }
 
     private void run() {
         while (true) {
             try {
+                String[] arr =in.readLine().split("\\|");
 //                System.out.println(in.readLine());
-                String command = in.readLine().split(":")[0];
-                if (command.equals(GameCommand.FIELD.toString())){
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int i = 0; i < 8; i++) {
-                        stringBuilder.append(in.readLine());
-                    }
-                    Figure[][] figures = ChessParser.getField(command);
+                String command =  arr[0];
+                if (command.equals(GameCommand.FIELD.toString())) {
+                    Figure[][] figures = ChessParser.getField(Arrays.toString(arr));
+//                    Figure[][] figures = new Figure[8][8];
+//                    for(Obj objFigure : Obj.fromString(arr[1]).toList()){
+//                        int x = Integer.parseInt(objFigure.get("x").val());
+//                        int y = Integer.parseInt(objFigure.get("y").val());
+//                        String name = objFigure.get("name").val();
+
                     Platform.runLater(() -> clientFieldListeners.forEach(l -> l.setGameField(figures)));
-                }
-                else if(command.equals(GameCommand.GCOORD.toString())){
-                    Coord[] coords = ChessParser.getCoord(command);
+                } else if (command.equals(GameCommand.GCOORD.toString())) {
+                    Obj obj = Obj.fromString(arr[1]);
+                    Coord[] coords = new Coord[2];
+                    coords[0] = new Coord(
+                            Integer.parseInt(obj.get("from").get("x").val()),
+                            Integer.parseInt(obj.get("from").get("y").val())
+                    );
+                    coords[1] = new Coord(
+                            Integer.parseInt(obj.get("to").get("x").val()),
+                            Integer.parseInt(obj.get("to").get("y").val())
+                    );
+
                     gameMoveListeners.forEach(l -> l.makeMove(coords));
-                }
-                else if (command.equals(GameCommand.GMOVERESULT.toString())){
-                    MoveResult moveResult = ChessParser.getMoveResult(command);
-                    Platform.runLater(() ->clientMoveListeners.forEach(l -> l.setMoveResult(moveResult)));
-                }
-                else out.println("error command, try again");
+                } else if (command.equals(GameCommand.GMOVERESULT.toString())) {
+                    Obj obj = Obj.fromString(arr[1]);
+                    MoveType moveType = MoveType.valueOf(obj.get("movetype").val());
+
+                    Coord coord1 = new Coord(
+                            Integer.parseInt(obj.get("from").get("x").val()),
+                            Integer.parseInt(obj.get("from").get("y").val())
+                    );
+                    Coord coord2 = new Coord(
+                            Integer.parseInt(obj.get("to").get("x").val()),
+                            Integer.parseInt(obj.get("to").get("y").val())
+                    );
+                    MoveResult moveResult = new MoveResult(moveType,coord1,coord2);
+                    Platform.runLater(() -> clientMoveListeners.forEach(l -> l.setMoveResult(moveResult)));
+                } else out.println("error command, try again");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
     }
-
-
-
 
 
     //    @Override
@@ -131,6 +180,7 @@ public class OnlineController extends AbstractController {
     //    @Override
     public void getUpdate() {
     }
+
     //    @Override
     public void getMove() {
         new Thread(() -> {

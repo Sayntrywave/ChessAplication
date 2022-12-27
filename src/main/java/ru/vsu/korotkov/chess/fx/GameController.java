@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 //todo подумать над названием
-public class GameController implements IGameController {
+public class GameController  {
 
     ClientSideController controller;
 
@@ -41,7 +41,6 @@ public class GameController implements IGameController {
 
     @FXML
     public void initialize() {
-//        createContent(new Game());
     }
 
     private void createListeners(){
@@ -84,7 +83,6 @@ public class GameController implements IGameController {
         System.out.println();
 //        changeScene();
     }
-    @Override
     public void movePiece(MoveResult move){
         int x0 = move.coord1().getX();
         int y0 = move.coord1().getY();
