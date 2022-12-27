@@ -26,8 +26,10 @@ public class GameServer {
     public GameServer(int port) throws IOException {
 
         this.port = port;
+//        ServerSocket serverSocket = new ServerSocket(port);
 
         controller = new OnlineController(port);
+
     }
 
     public void start() throws IOException {
@@ -35,10 +37,18 @@ public class GameServer {
         ServerSocket serverSocket = new ServerSocket(port);
         Socket socket = serverSocket.accept();
         System.out.printf("Client connected from: %s%n", socket.getInetAddress());
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
+        out.println("You're connected. Waiting for your opponent");
+        socket = serverSocket.accept();
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(),true);
+        out.println("You're connected. The game has started");
+        game.start();
 
 //        game = new LocalGame(PlayerType.HUMAN,PlayerType.HUMAN);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+     /*   BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         PrintWriter out = new PrintWriter(socket.getOutputStream(),true);
         String command;
         boolean gameOver = true;
@@ -55,7 +65,7 @@ public class GameServer {
             //TODO create client session and start it
 //            ClientSession session = new ClientSession(socket);
 //            new Thread(session).start();
-        }
+        }*/
     }
 
 

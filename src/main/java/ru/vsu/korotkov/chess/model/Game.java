@@ -35,6 +35,7 @@ public class Game {
         setPlayer(player1,true, serverSideController);
         setPlayer(player2,false, serverSideController);
 //        roundEventListeners.add(this);
+        serverSideController.addGameMoveListener(this::makeMove);
     }
 
     public void setPlayer(PlayerType player, boolean isWhite, ServerSideController serverSideController) {
@@ -72,13 +73,12 @@ public class Game {
         return numberOfMoves % 2 == 1;
     }
 
-    public MoveType makeMove(){
+    public MoveType makeMove(Coord[] move){
         //todo какой плейер пошел
         int turn = numberOfMoves % 2;
-        Coord[] move = players.get(turn).move();
         //todo проверить правильность хода
         MoveType moveType;
-        switch (players.get(numberOfMoves % 2).moveFigure(move)){
+        switch (players.get(turn).moveFigure(move)){
             case NORMAL -> {
                 numberOfMoves++;
                 moveType = MoveType.NORMAL;
@@ -97,15 +97,11 @@ public class Game {
             }
         }
         players.get(turn).updateClient(new MoveResult(moveType, move[0],move[1]));
-        System.out.println();
-//            roundEventListeners.forEach(l -> l.onRoundFinished(moveType,coords));
         return moveType;
     }
 
     public void start(){
-        while (!isOver){
-            makeMove();
-        }
+        serverSideController.sendGameField(gameField);
     }
 
 /*    public MoveType round(Coord[] coord){
@@ -149,7 +145,6 @@ public class Game {
         for (int j = 0; j < fieldSize; j++) {
             gameField[6][j] = new Pawn(false, gameField, new Coord(j, 6));
         }
-
 
     }
 }

@@ -1,22 +1,30 @@
 package ru.vsu.korotkov.chess.remote;
 
+import ru.vsu.korotkov.chess.console.GameCommand;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
-import ru.vsu.korotkov.chess.fx.Piece;
+import ru.vsu.korotkov.chess.listeners.ClientFieldListener;
+import ru.vsu.korotkov.chess.listeners.ClientMoveListener;
+import ru.vsu.korotkov.chess.listeners.GameMoveListener;
 import ru.vsu.korotkov.chess.move.MoveResult;
+import ru.vsu.korotkov.chess.server.ChessParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class OnlineController implements ClientSideController,ServerSideController {
+public class OnlineController extends AbstractController {
 
     private Socket socket;
     private BufferedReader in;
     private PrintWriter out;
+
+    private GameCommand currCommand;
 
 
 
@@ -24,12 +32,75 @@ public class OnlineController implements ClientSideController,ServerSideControll
         socket = new Socket("localhost",port);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(),true);
+
+        new Thread(this::run).start();
+    }
+
+    @Override
+    public void startGame() {
+        //there's nothing to do
+    }
+
+
+
+
+    @Override
+    public void notifyClick(Coord[] coord) {
+        //todo print command coord
+        send(GameCommand.GCOORD,Arrays.toString(coord));
     }
 
 
 
     @Override
-    public Figure[][] getField() {
+    public void notifyUpdate(MoveResult move) {
+        send(GameCommand.GMOVERESULT,move.toString());
+    }
+
+    @Override
+    public void sendGameField(Figure[][] figures) {
+        StringBuilder message = new StringBuilder();
+        for (Figure[] figure : figures) {
+            message.append(Arrays.toString(figure)).append("\n");
+        }
+        send(GameCommand.FIELD,message.toString());
+    }
+
+    private void send(GameCommand gameCommand, String message){
+        out.println(gameCommand + ":");
+        out.println(message);
+    }
+
+    private void run() {
+        while (true) {
+            try {
+                System.out.println(in.readLine());
+                String command = in.readLine().split(":")[0];
+                if (command.equals(GameCommand.FIELD.toString())){
+                    Figure[][] figures = ChessParser.getField(command);
+                    clientFieldListeners.forEach(l -> l.setGameField(figures));
+                }
+                else if(command.equals(GameCommand.GCOORD.toString())){
+                    Coord[] coords = ChessParser.getCoord(command);
+                    gameMoveListeners.forEach(l -> l.makeMove(coords));
+                }
+                else if (command.equals(GameCommand.GMOVERESULT.toString())){
+                    MoveResult moveResult = ChessParser.getMoveResult(command);
+                    clientMoveListeners.forEach(l -> l.setMoveResult(moveResult));
+                }
+                else out.println("error command, try again");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+
+
+
+    //    @Override
+    public void getField() {
         //todo get field
         out.println("getField");
 
@@ -46,22 +117,13 @@ public class OnlineController implements ClientSideController,ServerSideControll
         }).start();
 
         // get info from in.readLine();
-        return new Figure[0][];
     }
 
-    @Override
-    public MoveResult getUpdate() {
-        return null;
+    //    @Override
+    public void getUpdate() {
     }
-
-    @Override
-    public void notifyClick(Coord[] coord) {
-        //todo print command coord
-        out.println(Arrays.toString(coord));
-    }
-
-    @Override
-    public Coord[] askClient() {
+    //    @Override
+    public void getMove() {
         new Thread(() -> {
             //todo if command == coord then break
             while (true) {
@@ -74,12 +136,9 @@ public class OnlineController implements ClientSideController,ServerSideControll
             }
         }).start();
         // get info from in.readLine();
-        return new Coord[0];
     }
 
-    @Override
-    public void notifyUpdate(MoveResult move) {
-        //todo command notifyUpdate
-        out.println(move);
-    }
 }
+
+
+

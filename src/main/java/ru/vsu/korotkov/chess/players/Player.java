@@ -78,9 +78,9 @@ public abstract class Player {
         return moveFigure(figure, toX, toY) ? /*((gameField[toY][toX] == null) ? MoveType.NORMAL : MoveType.KILL) */ MoveType.NORMAL : MoveType.NONE;
     }
 
-    public Coord[] move(){
-        return serverSideController.askClient();
-    }
+//    public Coord[] move(){
+//        return serverSideController.getMove();
+//    }
 
     public void updateClient(MoveResult result){
         serverSideController.notifyUpdate(result);

@@ -4,6 +4,7 @@ import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 import ru.vsu.korotkov.chess.listeners.ClientFieldListener;
 import ru.vsu.korotkov.chess.listeners.ClientMoveListener;
+import ru.vsu.korotkov.chess.listeners.GameMoveListener;
 import ru.vsu.korotkov.chess.model.Game;
 import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.players.PlayerType;
@@ -15,10 +16,12 @@ public class OfflineController implements ClientSideController, ServerSideContro
 
     List<ClientMoveListener> clientMoveListeners = new ArrayList<>();
     List<ClientFieldListener> clientFieldListeners = new ArrayList<>();
+    List<GameMoveListener> gameMoveListeners = new ArrayList<>();
     private IGameController gameController;
     private Game game;
-    private Coord[] move;
-    private Figure[][] gameField;
+//    private Coord[] currMove;
+//    private Figure[][] currGameField;
+//    private MoveResult currMoveResult;
     //создать лиссенеры, что ход пришел то обновить
     //при чем в обе стороны
 
@@ -26,49 +29,65 @@ public class OfflineController implements ClientSideController, ServerSideContro
         //todo main game not abstract
         this.gameController = gameController;
         this.game = new Game(PlayerType.HUMAN,PlayerType.HUMAN,this);
-        new Thread(game::start).start();
+//        game.start();
+//        new Thread(game::start).start();
     }
 
     @Override
-    public Figure[][] getField() {
-
-        return gameField;
+    public void startGame() {
+        game.start();
     }
+
+//    @Override
+//    public void getField() {
+////        clientFieldListeners.forEach(l -> l.setGameField(currGameField));
+//    }
 
     @Override
     public void notifyUpdate(MoveResult result) {
-        gameController.movePiece(result);
+        clientMoveListeners.forEach(l -> l.setMoveResult(result));
+//        currMoveResult = result;
+//        getUpdate();
+    }
+
+//    @Override
+//    public void getUpdate() {
+//        clientMoveListeners.forEach(l -> l.setMoveResult(currMoveResult));
+//    }
+
+    @Override
+    public void addClientMoveListener(ClientMoveListener moveListener) {
+        clientMoveListeners.add(moveListener);
     }
 
     @Override
-    public MoveResult getUpdate() {
-        return null;
+    public void addClientFieldListener(ClientFieldListener fieldListener) {
+        clientFieldListeners.add(fieldListener);
     }
 
     @Override
     public void notifyClick(Coord[] coord) {
-        synchronized (this) {
-                move = coord;
-                this.notifyAll();
-        }
+        gameMoveListeners.forEach(l -> l.makeMove(coord));
+
+//        currMove = coord;
+//        getMove();
         //тут вызываем getMove и всех лиссенеров пробуждаем
     }
 
     @Override
     public void sendGameField(Figure[][] figures) {
-        gameField = figures;
-        getField();
+        clientFieldListeners.forEach(l -> l.setGameField(figures));
+//        currGameField = figures;
+//        getField();
     }
 
     @Override
-    public Coord[] askClient() {
-        synchronized (this){
-            try {
-                this.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return move;
+    public void addGameMoveListener(GameMoveListener gameMoveListener) {
+        gameMoveListeners.add(gameMoveListener);
     }
+
+//    @Override
+//    public void getMove() {
+//        gameMoveListeners.forEach(l -> l.makeMove(currMove));
+//    }
 }

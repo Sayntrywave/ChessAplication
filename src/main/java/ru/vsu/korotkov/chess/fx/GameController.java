@@ -8,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
+import ru.vsu.korotkov.chess.listeners.ClientFieldListener;
 import ru.vsu.korotkov.chess.model.Game;
 import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.players.PlayerType;
@@ -43,8 +44,15 @@ public class GameController implements IGameController {
 //        createContent(new Game());
     }
 
-    private void createContent() throws IOException {
-        gameField = controller.getField();
+    private void createListeners(){
+        controller.addClientFieldListener(gameField1 -> {
+            gameField = gameField1;
+                createContent();
+        });
+        controller.addClientMoveListener(this::movePiece);
+    }
+
+    private void createContent() {
         StringBuilder string = new StringBuilder();
         for (int i = 0; i < gameField.length; i++) {
             string.append(Arrays.toString(gameField[i]) + "\n");
@@ -120,19 +128,23 @@ public class GameController implements IGameController {
                     new Coord(piece.getX(), piece.getY()),
                     new Coord(newX,newY)
             });
-            MoveResult result = controller.getUpdate();
-            movePiece(result);
+//            MoveResult result = controller.getUpdate();
+//            movePiece(result);
         });
         return piece;
     }
     @FXML
     protected void onLocalGameButtonPressed() throws IOException {
         controller = new OfflineController(this);
-        createContent();
+        createGame();
     }
     @FXML
     protected void onRemoteGameButtonPressed() throws IOException {
         controller = new OnlineController(9999); // надо сделать еще один интерфейс для игрового контроллера
-        createContent();
+        createGame();
+    }
+    private void createGame(){
+        createListeners();
+        controller.startGame();
     }
 }

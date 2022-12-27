@@ -23,7 +23,7 @@ public class ConsoleGame implements IGameController {
     public void start() {
         //todo ask user about game
         controller = new OfflineController(this);
-        cli = new CLI(controller.getField());
+//        cli = new CLI(controller.getField());
 //        game.addRoundEventListeners((moveType,coords) -> {
 //            if (moveType == MoveType.KILL || moveType == MoveType.NORMAL){
 //                cli.updateGameField();
