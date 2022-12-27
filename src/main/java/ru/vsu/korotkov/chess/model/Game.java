@@ -16,26 +16,18 @@ import java.util.List;
 
 public class Game {
 
-    private final ServerSideController serverSideController;
-    private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
-    private final List<GameOverListener> gameOverListeners = new ArrayList<>();
+//    private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
+//    private final List<GameOverListener> gameOverListeners = new ArrayList<>();
     private Figure[][] gameField;
     protected final List<Player> players;
     private boolean isOver = false;
     private int numberOfMoves = 0;
 
-    public Game(PlayerType player1, PlayerType player2) {
-        this(player1,player2,null);
-    }
 
-    public Game(PlayerType player1,PlayerType player2, ServerSideController serverSideController) {
-        this.serverSideController = serverSideController;
+    public Game() {
         createGameField();
         players = new ArrayList<>();
-        setPlayer(player1,true, serverSideController);
-        setPlayer(player2,false, serverSideController);
 //        roundEventListeners.add(this);
-        serverSideController.addGameMoveListener(this::makeMove);
     }
 
     public void setPlayer(PlayerType player, boolean isWhite, ServerSideController serverSideController) {
@@ -50,19 +42,19 @@ public class Game {
 
     private void setGameOver() {
         isOver = true;
-        gameOverListeners.forEach(GameOverListener::onGameOver);
+//        gameOverListeners.forEach(GameOverListener::onGameOver);
     }
 
     public int getNumberOfMoves() {
         return numberOfMoves;
     }
 
-    public void  addRoundEventListeners(RoundEventListeners listener){
-        roundEventListeners.add(listener);
-    }
-    public void  addGameOverListeners(GameOverListener listener){
-        gameOverListeners.add(listener);
-    }
+//    public void  addRoundEventListeners(RoundEventListeners listener){
+//        roundEventListeners.add(listener);
+//    }
+//    public void  addGameOverListeners(GameOverListener listener){
+//        gameOverListeners.add(listener);
+//    }
 
     public Figure[][] getGameField() {
         return gameField;
@@ -100,8 +92,15 @@ public class Game {
         return moveType;
     }
 
-    public void start(){
-        serverSideController.sendGameField(gameField);
+    public boolean start(){
+        if (players.size() != 2){
+            return false;
+        }
+        for (Player player : players) {
+            player.addGameMoveListener(this::makeMove);
+            player.sendField(gameField);
+        }
+        return true;
     }
 
 /*    public MoveType round(Coord[] coord){

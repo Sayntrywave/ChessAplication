@@ -17,7 +17,6 @@ public class OfflineController implements ClientSideController, ServerSideContro
     List<ClientMoveListener> clientMoveListeners = new ArrayList<>();
     List<ClientFieldListener> clientFieldListeners = new ArrayList<>();
     List<GameMoveListener> gameMoveListeners = new ArrayList<>();
-    private IGameController gameController;
     private Game game;
 //    private Coord[] currMove;
 //    private Figure[][] currGameField;
@@ -25,10 +24,12 @@ public class OfflineController implements ClientSideController, ServerSideContro
     //создать лиссенеры, что ход пришел то обновить
     //при чем в обе стороны
 
-    public OfflineController(IGameController gameController) {
+    public OfflineController() {
         //todo main game not abstract
-        this.gameController = gameController;
-        this.game = new Game(PlayerType.HUMAN,PlayerType.HUMAN,this);
+        this.game = new Game();
+        game.setPlayer(PlayerType.HUMAN,true,this);
+        game.setPlayer(PlayerType.HUMAN,false,this);
+
 //        game.start();
 //        new Thread(game::start).start();
     }

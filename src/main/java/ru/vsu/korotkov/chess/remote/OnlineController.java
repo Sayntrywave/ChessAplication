@@ -1,5 +1,6 @@
 package ru.vsu.korotkov.chess.remote;
 
+import javafx.application.Platform;
 import ru.vsu.korotkov.chess.console.GameCommand;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
@@ -28,12 +29,15 @@ public class OnlineController extends AbstractController {
 
 
 
-    public OnlineController(int port) throws IOException {
-        socket = new Socket("localhost",port);
+    public OnlineController(Socket socket) throws IOException {
+        this.socket = socket;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(),true);
 
         new Thread(this::run).start();
+    }
+    public OnlineController(int port) throws IOException {
+        this(new Socket("localhost",port));
     }
 
     @Override
@@ -67,6 +71,7 @@ public class OnlineController extends AbstractController {
     }
 
     private void send(GameCommand gameCommand, String message){
+        System.out.println("я отправил" + gameCommand.toString());
         out.println(gameCommand + ":");
         out.println(message);
     }
@@ -74,11 +79,15 @@ public class OnlineController extends AbstractController {
     private void run() {
         while (true) {
             try {
-                System.out.println(in.readLine());
+//                System.out.println(in.readLine());
                 String command = in.readLine().split(":")[0];
                 if (command.equals(GameCommand.FIELD.toString())){
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 0; i < 8; i++) {
+                        stringBuilder.append(in.readLine());
+                    }
                     Figure[][] figures = ChessParser.getField(command);
-                    clientFieldListeners.forEach(l -> l.setGameField(figures));
+                    Platform.runLater(() -> clientFieldListeners.forEach(l -> l.setGameField(figures)));
                 }
                 else if(command.equals(GameCommand.GCOORD.toString())){
                     Coord[] coords = ChessParser.getCoord(command);
@@ -86,7 +95,7 @@ public class OnlineController extends AbstractController {
                 }
                 else if (command.equals(GameCommand.GMOVERESULT.toString())){
                     MoveResult moveResult = ChessParser.getMoveResult(command);
-                    clientMoveListeners.forEach(l -> l.setMoveResult(moveResult));
+                    Platform.runLater(() ->clientMoveListeners.forEach(l -> l.setMoveResult(moveResult)));
                 }
                 else out.println("error command, try again");
             } catch (IOException e) {

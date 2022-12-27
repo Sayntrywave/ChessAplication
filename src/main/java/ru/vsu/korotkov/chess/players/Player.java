@@ -4,6 +4,7 @@ import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 import ru.vsu.korotkov.chess.figures.King;
+import ru.vsu.korotkov.chess.listeners.GameMoveListener;
 import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.remote.ServerSideController;
 
@@ -90,5 +91,13 @@ public abstract class Player {
 
     private boolean moveFigure(Figure figure, int x, int y) {
         return figure.moveTo(x, y);
+    }
+
+    public void addGameMoveListener(GameMoveListener gameMoveListener){
+        serverSideController.addGameMoveListener(gameMoveListener);
+    }
+
+    public void sendField(Figure[][] gameField){
+        serverSideController.sendGameField(gameField);
     }
 }

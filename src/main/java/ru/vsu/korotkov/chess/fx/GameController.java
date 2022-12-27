@@ -46,6 +46,9 @@ public class GameController implements IGameController {
 
     private void createListeners(){
         controller.addClientFieldListener(gameField1 -> {
+            if (gameField != null){
+                return;
+            }
             gameField = gameField1;
                 createContent();
         });
@@ -135,7 +138,7 @@ public class GameController implements IGameController {
     }
     @FXML
     protected void onLocalGameButtonPressed() throws IOException {
-        controller = new OfflineController(this);
+        controller = new OfflineController();
         createGame();
     }
     @FXML
