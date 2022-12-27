@@ -45,9 +45,11 @@ public class GameController implements IGameController {
 
     private void createContent() throws IOException {
         gameField = controller.getField();
+        StringBuilder string = new StringBuilder();
         for (int i = 0; i < gameField.length; i++) {
-            System.out.println(Arrays.toString(gameField[i]));
+            string.append(Arrays.toString(gameField[i]) + "\n");
         }
+        System.out.println(string);
         root.setPrefSize(WIDTH*TILE_SIZE,HEIGHT*TILE_SIZE);
         root.getScene().getWindow().setHeight(WIDTH*TILE_SIZE + 74);
         root.getScene().getWindow().setWidth(WIDTH*TILE_SIZE);
@@ -118,6 +120,8 @@ public class GameController implements IGameController {
                     new Coord(piece.getX(), piece.getY()),
                     new Coord(newX,newY)
             });
+            MoveResult result = controller.getUpdate();
+            movePiece(result);
         });
         return piece;
     }
@@ -128,7 +132,7 @@ public class GameController implements IGameController {
     }
     @FXML
     protected void onRemoteGameButtonPressed() throws IOException {
-//        controller = new OnlineController(this); // надо сделать еще один интерфейс для игрового контроллера
+        controller = new OnlineController(9999); // надо сделать еще один интерфейс для игрового контроллера
         createContent();
     }
 }
