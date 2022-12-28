@@ -10,11 +10,10 @@ import ru.vsu.korotkov.chess.move.MoveResult;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractController implements ClientSideController, ServerSideController{
+public abstract class AbstractController implements ClientSideController, ServerSideController {
     List<ClientMoveListener> clientMoveListeners = new ArrayList<>();
     List<ClientFieldListener> clientFieldListeners = new ArrayList<>();
     List<GameMoveListener> gameMoveListeners = new ArrayList<>();
-
 
 
     @Override

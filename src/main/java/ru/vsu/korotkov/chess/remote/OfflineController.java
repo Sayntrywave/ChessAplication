@@ -18,20 +18,12 @@ public class OfflineController implements ClientSideController, ServerSideContro
     List<ClientFieldListener> clientFieldListeners = new ArrayList<>();
     List<GameMoveListener> gameMoveListeners = new ArrayList<>();
     private Game game;
-//    private Coord[] currMove;
-//    private Figure[][] currGameField;
-//    private MoveResult currMoveResult;
-    //создать лиссенеры, что ход пришел то обновить
-    //при чем в обе стороны
 
     public OfflineController() {
         //todo main game not abstract
         this.game = new Game();
-        game.setPlayer(PlayerType.HUMAN,true,this);
-        game.setPlayer(PlayerType.HUMAN,false,this);
-
-//        game.start();
-//        new Thread(game::start).start();
+        game.setPlayer(PlayerType.HUMAN, true, this);
+        game.setPlayer(PlayerType.HUMAN, false, this);
     }
 
     @Override
@@ -39,22 +31,11 @@ public class OfflineController implements ClientSideController, ServerSideContro
         game.start();
     }
 
-//    @Override
-//    public void getField() {
-////        clientFieldListeners.forEach(l -> l.setGameField(currGameField));
-//    }
-
     @Override
     public void notifyUpdate(MoveResult result) {
         clientMoveListeners.forEach(l -> l.setMoveResult(result));
-//        currMoveResult = result;
-//        getUpdate();
     }
 
-//    @Override
-//    public void getUpdate() {
-//        clientMoveListeners.forEach(l -> l.setMoveResult(currMoveResult));
-//    }
 
     @Override
     public void addClientMoveListener(ClientMoveListener moveListener) {
@@ -70,16 +51,11 @@ public class OfflineController implements ClientSideController, ServerSideContro
     public void notifyClick(Coord[] coord) {
         gameMoveListeners.forEach(l -> l.makeMove(coord));
 
-//        currMove = coord;
-//        getMove();
-        //тут вызываем getMove и всех лиссенеров пробуждаем
     }
 
     @Override
     public void sendGameField(Figure[][] figures) {
         clientFieldListeners.forEach(l -> l.setGameField(figures));
-//        currGameField = figures;
-//        getField();
     }
 
     @Override
@@ -87,8 +63,4 @@ public class OfflineController implements ClientSideController, ServerSideContro
         gameMoveListeners.add(gameMoveListener);
     }
 
-//    @Override
-//    public void getMove() {
-//        gameMoveListeners.forEach(l -> l.makeMove(currMove));
-//    }
 }

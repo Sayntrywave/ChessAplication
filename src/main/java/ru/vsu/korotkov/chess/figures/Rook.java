@@ -4,32 +4,18 @@ import ru.vsu.korotkov.chess.enums.PieceType;
 
 public class Rook extends Figure {
 
-
-/*    public Rook(boolean isWhite, Figure[][] gameField, Coord coord) {
-        super(isWhite, gameField, coord);
-    }*/
-
-/*
-    public Rook(boolean isWhite, Figure[][] gameField, King king) {
-        super(isWhite, gameField, king);
-    }
-*/
-
-
     public Rook(boolean isWhite, Figure[][] gameField, Coord coord, King king) {
         super(isWhite, gameField, coord, king);
-        if (isWhite){
+        if (isWhite) {
             pieceType = PieceType.WKNIGHT;
-        }
-        else pieceType = PieceType.BKNIGHT;
+        } else pieceType = PieceType.BKNIGHT;
     }
 
     public Rook(boolean isWhite, Figure[][] gameField, Coord coord) {
         super(isWhite, gameField, coord);
-        if (isWhite){
+        if (isWhite) {
             pieceType = PieceType.WROOK;
-        }
-        else pieceType = PieceType.BROOK;
+        } else pieceType = PieceType.BROOK;
     }
 
     @Override

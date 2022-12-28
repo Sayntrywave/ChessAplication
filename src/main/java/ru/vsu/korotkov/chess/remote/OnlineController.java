@@ -3,12 +3,10 @@ package ru.vsu.korotkov.chess.remote;
 import javafx.application.Platform;
 import ru.vsu.korotkov.chess.console.GameCommand;
 import ru.vsu.korotkov.chess.enums.MoveType;
-import ru.vsu.korotkov.chess.figures.Bishop;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
-import ru.vsu.korotkov.chess.figures.King;
 import ru.vsu.korotkov.chess.move.MoveResult;
-import ru.vsu.korotkov.chess.server.ChessParser;
+import ru.vsu.korotkov.chess.parser.ChessParser;
 import simplejson.ArrObj;
 import simplejson.MapObj;
 import simplejson.Obj;
@@ -46,19 +44,18 @@ public class OnlineController extends AbstractController {
         //there's nothing to do
     }
 
-
     @Override
     public void notifyClick(Coord[] coord) {
         //todo print command coord
         Obj obj = new MapObj();
         Obj from = new MapObj();
         Obj to = new MapObj();
-        from.put("x","" + coord[0].getX());
-        from.put("y","" + coord[0].getY());
-        to.put("x","" + coord[1].getX());
-        to.put("y","" + coord[1].getY());
-        obj.put("from",from);
-        obj.put("to",to);
+        from.put("x", "" + coord[0].getX());
+        from.put("y", "" + coord[0].getY());
+        to.put("x", "" + coord[1].getX());
+        to.put("y", "" + coord[1].getY());
+        obj.put("from", from);
+        obj.put("to", to);
         send(GameCommand.GCOORD, obj.toString());
     }
 
@@ -69,25 +66,24 @@ public class OnlineController extends AbstractController {
         Obj from = new MapObj();
         Obj to = new MapObj();
 
-        from.put("x","" + move.coord1().getX());
-        from.put("y","" + move.coord1().getY());
-        to.put("x","" + move.coord2().getX());
-        to.put("y","" + move.coord2().getY());
+        from.put("x", "" + move.coord1().getX());
+        from.put("y", "" + move.coord1().getY());
+        to.put("x", "" + move.coord2().getX());
+        to.put("y", "" + move.coord2().getY());
 
-        obj.put("movetype",move.moveType().toString());
-        obj.put("from",from);
-        obj.put("to",to);
+        obj.put("movetype", move.moveType().toString());
+        obj.put("from", from);
+        obj.put("to", to);
         send(GameCommand.GMOVERESULT, obj.toString());
     }
 
     @Override
     public void sendGameField(Figure[][] figures) {
         Obj res = new MapObj();
-//        res.put("command",GameCommand.FIELD.toString());
         Obj arrObj = new ArrObj();
-        for (int i = 0; i < figures.length; i++) {
+        for (Figure[] value : figures) {
             for (int j = 0; j < figures[0].length; j++) {
-                Figure figure = figures[i][j];
+                Figure figure = value[j];
                 if (figure == null)
                     continue;
                 Obj figureObj = new MapObj();
@@ -98,8 +94,8 @@ public class OnlineController extends AbstractController {
                 arrObj.append(figureObj);
             }
         }
-        res.put("field",arrObj);
-        send(GameCommand.FIELD,arrObj.toString());
+        res.put("field", arrObj);
+        send(GameCommand.FIELD, arrObj.toString());
     }
 
     private void send(GameCommand gameCommand, String message) {
@@ -110,17 +106,10 @@ public class OnlineController extends AbstractController {
     private void run() {
         while (true) {
             try {
-                String[] arr =in.readLine().split("\\|");
-//                System.out.println(in.readLine());
-                String command =  arr[0];
+                String[] arr = in.readLine().split("\\|");
+                String command = arr[0];
                 if (command.equals(GameCommand.FIELD.toString())) {
                     Figure[][] figures = ChessParser.getField(Arrays.toString(arr));
-//                    Figure[][] figures = new Figure[8][8];
-//                    for(Obj objFigure : Obj.fromString(arr[1]).toList()){
-//                        int x = Integer.parseInt(objFigure.get("x").val());
-//                        int y = Integer.parseInt(objFigure.get("y").val());
-//                        String name = objFigure.get("name").val();
-
                     Platform.runLater(() -> clientFieldListeners.forEach(l -> l.setGameField(figures)));
                 } else if (command.equals(GameCommand.GCOORD.toString())) {
                     Obj obj = Obj.fromString(arr[1]);
@@ -147,54 +136,13 @@ public class OnlineController extends AbstractController {
                             Integer.parseInt(obj.get("to").get("x").val()),
                             Integer.parseInt(obj.get("to").get("y").val())
                     );
-                    MoveResult moveResult = new MoveResult(moveType,coord1,coord2);
+                    MoveResult moveResult = new MoveResult(moveType, coord1, coord2);
                     Platform.runLater(() -> clientMoveListeners.forEach(l -> l.setMoveResult(moveResult)));
                 } else out.println("error command, try again");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-
-    //    @Override
-    public void getField() {
-        //todo get field
-        out.println("getField");
-
-        new Thread(() -> {
-            //todo if command == field then break
-            while (true) {
-                try {
-                    System.out.println(in.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                // do stuff
-            }
-        }).start();
-
-        // get info from in.readLine();
-    }
-
-    //    @Override
-    public void getUpdate() {
-    }
-
-    //    @Override
-    public void getMove() {
-        new Thread(() -> {
-            //todo if command == coord then break
-            while (true) {
-                try {
-                    System.out.println(in.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                // do stuff
-            }
-        }).start();
-        // get info from in.readLine();
     }
 
 }

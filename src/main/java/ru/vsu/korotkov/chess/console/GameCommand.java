@@ -5,10 +5,12 @@ public enum GameCommand {
     GCOORD("get_coord"),
     GMOVERESULT("set_coord");
     private final String command;
+
     GameCommand(String command) {
         this.command = command;
     }
-    public String getCommand(){
+
+    public String getCommand() {
         return command;
     }
 }

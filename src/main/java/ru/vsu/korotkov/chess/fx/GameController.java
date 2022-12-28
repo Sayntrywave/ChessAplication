@@ -5,75 +5,60 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
-import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
-import ru.vsu.korotkov.chess.listeners.ClientFieldListener;
-import ru.vsu.korotkov.chess.model.Game;
 import ru.vsu.korotkov.chess.move.MoveResult;
-import ru.vsu.korotkov.chess.players.PlayerType;
-import ru.vsu.korotkov.chess.remote.*;
+import ru.vsu.korotkov.chess.remote.ClientSideController;
+import ru.vsu.korotkov.chess.remote.OfflineController;
+import ru.vsu.korotkov.chess.remote.OnlineController;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
 
 //todo подумать над названием
-public class GameController  {
-
-    ClientSideController controller;
+public class GameController {
 
     public static final int TILE_SIZE = 100;
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
-
-    private Tile[][] board = new Tile[WIDTH][HEIGHT];
-
     private final Group tileGroup = new Group();
     private final Group pieceGroup = new Group();
-
-
-    Figure[][] gameField;
-
     public AnchorPane root;
-
-
+    ClientSideController controller;
+    Figure[][] gameField;
+    private Tile[][] board = new Tile[WIDTH][HEIGHT];
 
     @FXML
     public void initialize() {
     }
 
-    private void createListeners(){
+    private void createListeners() {
         controller.addClientFieldListener(gameField1 -> {
-            if (gameField != null){
+            if (gameField != null) {
                 return;
             }
             gameField = gameField1;
-                createContent();
+            createContent();
         });
         controller.addClientMoveListener(this::movePiece);
     }
 
     private void createContent() {
         StringBuilder string = new StringBuilder();
-        for (int i = 0; i < gameField.length; i++) {
-            string.append(Arrays.toString(gameField[i]) + "\n");
-        }
-        System.out.println(string);
-        root.setPrefSize(WIDTH*TILE_SIZE,HEIGHT*TILE_SIZE);
-        root.getScene().getWindow().setHeight(WIDTH*TILE_SIZE + 74);
-        root.getScene().getWindow().setWidth(WIDTH*TILE_SIZE);
+
+        root.setPrefSize(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE);
+        root.getScene().getWindow().setHeight(WIDTH * TILE_SIZE + 74);
+        root.getScene().getWindow().setWidth(WIDTH * TILE_SIZE);
         root.getScene().getWindow().centerOnScreen();
 
-        root.getChildren().addAll(tileGroup,pieceGroup);
+        root.getChildren().addAll(tileGroup, pieceGroup);
         for (int y = 0; y < HEIGHT; y++) {
             for (int x = 0; x < WIDTH; x++) {
                 Tile tile = new Tile((x + y) % 2 == 0, x, y);
                 board[y][x] = tile;
 
                 tileGroup.getChildren().add(tile);
-                Figure figure =gameField[y][x];
-                if (figure != null){
+                Figure figure = gameField[y][x];
+                if (figure != null) {
                     Piece piece = makePiece(figure);
                     tile.setPiece(piece);
                     pieceGroup.getChildren().add(piece);
@@ -83,13 +68,13 @@ public class GameController  {
         System.out.println();
 //        changeScene();
     }
-    public void movePiece(MoveResult move){
+
+    public void movePiece(MoveResult move) {
         int x0 = move.coord1().getX();
         int y0 = move.coord1().getY();
         int newX = move.coord2().getX();
         int newY = move.coord2().getY();
         Piece piece = board[y0][x0].getPiece();
-
         switch (move.moveType()) {
             case NONE -> piece.abortMove();
             case NORMAL -> {
@@ -114,10 +99,11 @@ public class GameController  {
     }
 
     private int toBoard(double pixel) {
-        return (int)(pixel + TILE_SIZE / 2) / TILE_SIZE;
+        return (int) (pixel + TILE_SIZE / 2) / TILE_SIZE;
     }
-    private Piece makePiece(Figure figure){
-        Piece piece = new Piece(figure.getPieceType(),figure.getCoord());
+
+    private Piece makePiece(Figure figure) {
+        Piece piece = new Piece(figure.getPieceType(), figure.getCoord());
         piece.setOnMouseReleased(e -> {
 
             int newX = toBoard(piece.getLayoutX());
@@ -127,24 +113,25 @@ public class GameController  {
             }
             controller.notifyClick(new Coord[]{
                     new Coord(piece.getX(), piece.getY()),
-                    new Coord(newX,newY)
+                    new Coord(newX, newY)
             });
-//            MoveResult result = controller.getUpdate();
-//            movePiece(result);
         });
         return piece;
     }
+
     @FXML
     protected void onLocalGameButtonPressed() throws IOException {
         controller = new OfflineController();
         createGame();
     }
+
     @FXML
     protected void onRemoteGameButtonPressed() throws IOException {
         controller = new OnlineController(9999); // надо сделать еще один интерфейс для игрового контроллера
         createGame();
     }
-    private void createGame(){
+
+    private void createGame() {
         createListeners();
         controller.startGame();
     }

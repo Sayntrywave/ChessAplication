@@ -1,11 +1,9 @@
-package ru.vsu.korotkov.chess.server;
+package ru.vsu.korotkov.chess.parser;
 
-import ru.vsu.korotkov.chess.enums.MoveType;
 import ru.vsu.korotkov.chess.figures.*;
-import ru.vsu.korotkov.chess.move.MoveResult;
 
 public class ChessParser {
-    public static Figure[][] getField(String string){
+    public static Figure[][] getField(String string) {
         StringBuilder stringBuilder = new StringBuilder(string);
         Figure[][] gameField = new Figure[8][8];
 
@@ -40,16 +38,5 @@ public class ChessParser {
             gameField[6][j] = new Pawn(false, gameField, new Coord(j, 6));
         }
         return gameField;
-    }
-    public static Coord[] getCoord(String string){
-        return new Coord[]{
-                new Coord(3,1),
-                new Coord(3,3)
-        };
-    }
-    public static MoveResult getMoveResult(String string){
-        return new MoveResult(MoveType.NONE,
-                new Coord(3,1),
-                new Coord(3,3));
     }
 }

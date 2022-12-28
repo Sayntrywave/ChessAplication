@@ -9,6 +9,15 @@ public class Tile extends Rectangle {
 
     private Piece piece;
 
+    public Tile(boolean light, int x, int y) {
+        setWidth(TILE_SIZE);
+        setHeight(TILE_SIZE);
+
+        relocate(x * TILE_SIZE, y * TILE_SIZE);
+
+        setFill(light ? Color.valueOf("#d18b47") : Color.valueOf("#b0b0b0"));
+    }
+
     public boolean hasPiece() {
         return piece != null;
     }
@@ -19,14 +28,5 @@ public class Tile extends Rectangle {
 
     public void setPiece(Piece piece) {
         this.piece = piece;
-    }
-
-    public Tile(boolean light, int x, int y) {
-        setWidth(TILE_SIZE);
-        setHeight(TILE_SIZE);
-
-        relocate(x * TILE_SIZE, y * TILE_SIZE);
-
-        setFill(light ? Color.valueOf("#d18b47") : Color.valueOf("#b0b0b0"));
     }
 }

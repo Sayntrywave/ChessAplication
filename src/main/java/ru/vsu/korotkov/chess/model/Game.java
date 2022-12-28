@@ -1,8 +1,6 @@
 package ru.vsu.korotkov.chess.model;
 
 import ru.vsu.korotkov.chess.enums.MoveType;
-import ru.vsu.korotkov.chess.events.GameOverListener;
-import ru.vsu.korotkov.chess.events.RoundEventListeners;
 import ru.vsu.korotkov.chess.figures.*;
 import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.players.Human;
@@ -15,11 +13,8 @@ import java.util.List;
 
 
 public class Game {
-
-//    private final List<RoundEventListeners> roundEventListeners = new ArrayList<>();
-//    private final List<GameOverListener> gameOverListeners = new ArrayList<>();
-    private Figure[][] gameField;
     protected final List<Player> players;
+    private Figure[][] gameField;
     private boolean isOver = false;
     private int numberOfMoves = 0;
 
@@ -27,12 +22,11 @@ public class Game {
     public Game() {
         createGameField();
         players = new ArrayList<>();
-//        roundEventListeners.add(this);
     }
 
     public void setPlayer(PlayerType player, boolean isWhite, ServerSideController serverSideController) {
-        if (player.equals(PlayerType.HUMAN)){
-            players.add(new Human(isWhite,gameField,serverSideController));
+        if (player.equals(PlayerType.HUMAN)) {
+            players.add(new Human(isWhite, gameField, serverSideController));
         }
     }
 
@@ -42,35 +36,26 @@ public class Game {
 
     private void setGameOver() {
         isOver = true;
-//        gameOverListeners.forEach(GameOverListener::onGameOver);
     }
 
     public int getNumberOfMoves() {
         return numberOfMoves;
     }
 
-//    public void  addRoundEventListeners(RoundEventListeners listener){
-//        roundEventListeners.add(listener);
-//    }
-//    public void  addGameOverListeners(GameOverListener listener){
-//        gameOverListeners.add(listener);
-//    }
 
     public Figure[][] getGameField() {
         return gameField;
     }
 
-    public boolean getTurn(){
+    public boolean getTurn() {
         //Если игрок ходит белыми, то метод возвращает true
         return numberOfMoves % 2 == 1;
     }
 
-    public MoveType makeMove(Coord[] move){
-        //todo какой плейер пошел
+    public MoveType makeMove(Coord[] move) {
         int turn = numberOfMoves % 2;
-        //todo проверить правильность хода
         MoveType moveType;
-        switch (players.get(turn).moveFigure(move)){
+        switch (players.get(turn).moveFigure(move)) {
             case NORMAL -> {
                 numberOfMoves++;
                 moveType = MoveType.NORMAL;
@@ -88,12 +73,12 @@ public class Game {
                 moveType = MoveType.NONE;
             }
         }
-        players.get(turn).updateClient(new MoveResult(moveType, move[0],move[1]));
+        players.get(turn).updateClient(new MoveResult(moveType, move[0], move[1]));
         return moveType;
     }
 
-    public boolean start(){
-        if (players.size() != 2){
+    public boolean start() {
+        if (players.size() != 2) {
             return false;
         }
         for (Player player : players) {
@@ -102,12 +87,6 @@ public class Game {
         }
         return true;
     }
-
-/*    public MoveType round(Coord[] coord){
-        MoveType moveType = doOnEndRound(coord);
-        return moveType;
-    }*/
-
 
     private void createGameField() {
         int fieldSize = 8;

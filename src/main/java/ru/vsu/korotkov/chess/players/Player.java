@@ -9,10 +9,10 @@ import ru.vsu.korotkov.chess.move.MoveResult;
 import ru.vsu.korotkov.chess.remote.ServerSideController;
 
 public abstract class Player {
-    private ServerSideController serverSideController;
     public final boolean isWhite;
-    private Figure[][] gameField;
     private final King friendlyKing;
+    private ServerSideController serverSideController;
+    private Figure[][] gameField;
 //    private final King enemyKing;
 
     public Player(boolean isWhite, Figure[][] gameField, ServerSideController serverSideController) {
@@ -20,22 +20,21 @@ public abstract class Player {
         this.gameField = gameField;
         this.serverSideController = serverSideController;
 
-        friendlyKing = (isWhite) ? (King) gameField[0][4]: (King) gameField[7][4];
-//        enemyKing = (!isWhite) ?  (King) gameField[7][4]: (King) gameField[0][3];
+        friendlyKing = (isWhite) ? (King) gameField[0][4] : (King) gameField[7][4];
     }
 
-    private boolean hasEscapeMoves(){
+    private boolean hasEscapeMoves() {
         Figure figure;
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[i].length; j++) {
-                figure =gameField[i][j];
-                if(gameField[i][j] == null){
+                figure = gameField[i][j];
+                if (gameField[i][j] == null) {
                     continue;
                 }
-                if(figure.isWhite == isWhite){
+                if (figure.isWhite == isWhite) {
                     for (int k = 0; k < gameField.length; k++) {
                         for (int l = 0; l < gameField[k].length; l++) {
-                            if(figure.moveTo(l,k)){
+                            if (figure.moveTo(l, k)) {
                                 return true;
                             }
                         }
@@ -47,14 +46,14 @@ public abstract class Player {
     }
 
     public MoveType moveFigure(Coord[] coordinates) {
-        if(friendlyKing.isChecked()){
-            if(!hasEscapeMoves()){
+        if (friendlyKing.isChecked()) {
+            if (!hasEscapeMoves()) {
                 return MoveType.GAMEOVER;
             }
         }
 
         assert coordinates != null;
-        if(coordinates.length != 2){
+        if (coordinates.length != 2) {
             return MoveType.NONE;
         }
 
@@ -62,7 +61,7 @@ public abstract class Player {
         int y = coordinates[0].getY();
 
 
-        if ( x < 0 || y < 0 || y >= gameField.length || x >= gameField[0].length) {
+        if (x < 0 || y < 0 || y >= gameField.length || x >= gameField[0].length) {
             System.out.println("Переместить фигуру на координаты x: " + x + " y:" + y + "не удалось");
             return MoveType.NONE;
         }
@@ -79,25 +78,20 @@ public abstract class Player {
         return moveFigure(figure, toX, toY) ? /*((gameField[toY][toX] == null) ? MoveType.NORMAL : MoveType.KILL) */ MoveType.NORMAL : MoveType.NONE;
     }
 
-//    public Coord[] move(){
-//        return serverSideController.getMove();
-//    }
-
-    public void updateClient(MoveResult result){
+    public void updateClient(MoveResult result) {
         serverSideController.notifyUpdate(result);
     }
-
 
 
     private boolean moveFigure(Figure figure, int x, int y) {
         return figure.moveTo(x, y);
     }
 
-    public void addGameMoveListener(GameMoveListener gameMoveListener){
+    public void addGameMoveListener(GameMoveListener gameMoveListener) {
         serverSideController.addGameMoveListener(gameMoveListener);
     }
 
-    public void sendField(Figure[][] gameField){
+    public void sendField(Figure[][] gameField) {
         serverSideController.sendGameField(gameField);
     }
 }
