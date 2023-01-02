@@ -73,7 +73,12 @@ public class Game {
                 moveType = MoveType.NONE;
             }
         }
-        players.get(turn).updateClient(new MoveResult(moveType, move[0], move[1]));
+        //Проблема была в том, что я оповещал только одного клиента.
+        //Из-за чего и были такие странные координаты. Они не обрабатывались игрой для одного из клиента
+
+        for (Player player : players) {
+            player.updateClient(new MoveResult(moveType, move[0], move[1]));
+        }
         return moveType;
     }
 

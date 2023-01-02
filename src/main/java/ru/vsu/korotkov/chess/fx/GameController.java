@@ -13,6 +13,7 @@ import ru.vsu.korotkov.chess.remote.OfflineController;
 import ru.vsu.korotkov.chess.remote.OnlineController;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 //todo подумать над названием
 public class GameController {
@@ -37,6 +38,11 @@ public class GameController {
                 return;
             }
             gameField = gameField1;
+            StringBuilder s   = new StringBuilder();
+            for (Figure[] figures : gameField1) {
+                s.append(Arrays.toString(figures));
+            }
+            System.out.println(s.toString());
             createContent();
         });
         controller.addClientMoveListener(this::movePiece);
@@ -81,6 +87,7 @@ public class GameController {
                 piece.move(newX, newY);
                 board[x0][y0].setPiece(null);
                 board[newX][newY].setPiece(piece);
+
             }
             case KILL -> {
                 piece.move(newX, newY);

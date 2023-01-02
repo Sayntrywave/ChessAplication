@@ -47,6 +47,8 @@ public class Piece extends StackPane {
 
     public void move(int x, int y) {
         relocate(x * TILE_SIZE, y * TILE_SIZE);
+        coord.setX(x);
+        coord.setY(y);
     }
 
 

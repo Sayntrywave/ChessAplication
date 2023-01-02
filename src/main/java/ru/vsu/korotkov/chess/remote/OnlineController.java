@@ -124,6 +124,8 @@ public class OnlineController extends AbstractController {
                     );
 
                     gameMoveListeners.forEach(l -> l.makeMove(coords));
+                    //todo проблема, что на сервере каждый игрок может ходить любым цветом
+                    //надо добавить проверку на id игрока
                 } else if (command.equals(GameCommand.GMOVERESULT.toString())) {
                     Obj obj = Obj.fromString(arr[1]);
                     MoveType moveType = MoveType.valueOf(obj.get("movetype").val());
