@@ -1,21 +1,21 @@
-package ru.vsu.korotkov.chess.userInteractions;
+package ru.vsu.korotkov.chess.console;
 
-import ru.vsu.korotkov.chess.UserInteraction;
 import ru.vsu.korotkov.chess.figures.Coord;
 import ru.vsu.korotkov.chess.figures.Figure;
 
 import java.util.Scanner;
 
-public class CLI implements UserInteraction {
+public class CLI {
     Figure[][] gameField;
-    @Override
-    public void setGameField(Figure[][] gameField) {
+
+
+    public CLI(Figure[][] gameField) {
         this.gameField = gameField;
     }
 
-    @Override
+
     public void updateGameField() {
-        char a ='A';
+        char a = 'A';
         System.out.print("   ");
         for (int i = 0; i < 8; i++) {
             System.out.print((char) (a + i) + "  ");
@@ -23,12 +23,12 @@ public class CLI implements UserInteraction {
 
         System.out.print("\n   ");
         for (int i = 0; i < 8; i++) {
-            System.out.print( "-- ");
+            System.out.print("-- ");
         }
 
         System.out.println();
         for (int i = 0; i < gameField.length; i++) {
-            System.out.print((i +1 ) + "| ");
+            System.out.print((i + 1) + "| ");
             for (int j = 0; j < gameField.length; j++) {
                 System.out.print(gameField[i][j] == null ? "__" : gameField[i][j]);
                 System.out.print(" ");
@@ -37,13 +37,13 @@ public class CLI implements UserInteraction {
         }
     }
 
-    @Override
+
     public Coord[] getMove() {
         Scanner scanner = new Scanner(System.in);
         return parse(scanner.next());
     }
 
-    @Override
+
     public void printWinner(int numberOfMoves) {
         System.out.println(numberOfMoves % 2 == 1 ? "FirstPlayer won" : "SecondPlayer won");
     }

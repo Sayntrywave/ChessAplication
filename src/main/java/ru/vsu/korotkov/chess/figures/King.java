@@ -1,34 +1,18 @@
 package ru.vsu.korotkov.chess.figures;
 
+import ru.vsu.korotkov.chess.enums.PieceType;
+
 public class King extends Figure {
 
 
-/*    public King(boolean isWhite, Figure[][] gameField, Coord coord) {
-        super(isWhite, gameField, coord);
-    }*/
-
-//    public King(boolean isWhite, Figure[][] gameField, King king) {
-//        super(isWhite, gameField, king);
-//    }
     private boolean isChecked = false;
-//    private Figure offensiveFigure;
 
     public King(boolean isWhite, Figure[][] gameField, Coord coord) {
-        super(isWhite, gameField, coord, (King)gameField[coord.y][coord.x]);
+        super(isWhite, gameField, coord, (King) gameField[coord.y][coord.x]);
+        if (isWhite) {
+            pieceType = PieceType.WKING;
+        } else pieceType = PieceType.BKING;
     }
-
-    //    public Figure getOffensiveFigure() {
-//        return offensiveFigure;
-//    }
-//
-//    public void setOffensiveFigure(Figure offensiveFigure) {
-//        this.offensiveFigure = offensiveFigure;
-//    }
-
-
-/*    public boolean isInCheck(){
-        return isChecked;
-    }*/
 
     @Override
     public boolean canMove(int x, int y) {
@@ -38,7 +22,6 @@ public class King extends Figure {
 
         return true;
     }
-
 
 
     public boolean isChecked() {
@@ -56,7 +39,6 @@ public class King extends Figure {
                         break;
                     }
                     if (figure.toString().equals("Q") || figure.toString().equals("B")) {
-//                        System.out.println("King is checked");
                         return true;
                     }
 
